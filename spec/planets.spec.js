@@ -1,4 +1,4 @@
-const SolarSystem = require('../models/SolarSystem'); // Exemple de modèle
+const SolarSystem = require('../models/Planet'); // Exemple de modèle
 
 describe('Solar System Model', () => {
   it('should add a new planet if it does not exist', () => {
