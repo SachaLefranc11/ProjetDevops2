@@ -1,5 +1,5 @@
 <h1>Planets</h1>
-<form action="/planets/add" method="post" enctype="multipart/form-data">
+<form action="/planets/submit" method="post" enctype="multipart/form-data">
   <label>Name:</label>
   <input type="text" name="name" required>
   <label>Size (km):</label>
@@ -15,12 +15,37 @@
   <input type="number" name="distance_from_sun_km">
   <label>Image:</label>
   <input type="file" name="planetImage">
-  <button type="submit">Add Planet</button>
+  <button type="submit">Submit Planet</button>
 </form>
 
 {{#if errors}}
 <p style="color: red;">{{errors}}</p>
 {{/if}}
+
+{{#if message}}
+<p style="color: green;">{{message}}</p>
+{{/if}}
+
+<h2>Pending Planets</h2>
+<ul>
+  {{#each pendingPlanets}}
+  <li>
+    {{name}} - {{size_km}} km - {{atmosphere}} - {{type}}
+    {{#if ../session.admin}}
+      <form action="/planets/approve/{{id}}" method="post" style="display: inline;">
+        <button type="submit" style="color: green;">Approve</button>
+      </form>
+      <form action="/planets/reject/{{id}}" method="post" style="display: inline;">
+        <button type="submit" style="color: red;">Reject</button>
+      </form>
+    {{else}}
+      <p style="font-size: 0.9em;">Awaiting admin approval</p>
+    {{/if}}
+  </li>
+  {{else}}
+  <p>No planets awaiting approval.</p>
+  {{/each}}
+</ul>
 
 <h2>Current Planets</h2>
 <ul>
