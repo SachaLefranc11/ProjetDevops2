@@ -1,0 +1,30 @@
+<h1>Planets</h1>
+<form action="/planets/add" method="post" enctype="multipart/form-data">
+  <label>Name:</label>
+  <input type="text" name="name" required>
+  <label>Size (km):</label>
+  <input type="number" name="size_km" required>
+  <label>Atmosphere:</label>
+  <input type="text" name="atmosphere">
+  <label>Type:</label>
+  <select name="type">
+    <option value="terrestrial">Terrestrial</option>
+    <option value="gas">Gas</option>
+  </select>
+  <label>Distance from Sun (km):</label>
+  <input type="number" name="distance_from_sun_km">
+  <label>Image:</label>
+  <input type="file" name="planetImage">
+  <button type="submit">Add Planet</button>
+</form>
+
+{{#if errors}}
+<p style="color: red;">{{errors}}</p>
+{{/if}}
+
+<h2>Current Planets</h2>
+<ul>
+  {{#each planets}}
+  <li>{{name}} - {{size_km}} km - {{atmosphere}} - {{type}}</li>
+  {{/each}}
+</ul>
