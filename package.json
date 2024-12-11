@@ -6,7 +6,7 @@
   "start": "nodemon app.js",
   "lint": "eslint .",
   "test": "npm run lint && npm run tests",
-  "tests": "jasmine"
+  "tests": "npx jasmine"
 },
 
   "dependencies": {

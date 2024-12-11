@@ -21,7 +21,11 @@ jobs:
         with:
           node-version: 16
 
-      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run test
 
       - name: Run Jasmine tests
         run: npm run tests
