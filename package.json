@@ -2,11 +2,13 @@
   "name": "exojavascriptplanet",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "start": "nodemon app.js",
-    "test": "eslint --rulesdir ./tests .",
-    "tests":"jasmine"
-  },
+ "scripts": {
+  "start": "nodemon app.js",
+  "lint": "eslint .",
+  "test": "npm run lint && npm run tests",
+  "tests": "jasmine"
+},
+
   "dependencies": {
     "bcrypt": "^5.1.0",
     "better-sqlite3": "^9.4.3",
@@ -21,13 +23,15 @@
     "validator": "^13.9.0"
   },
   "devDependencies": {
-    "eslint": "^8.21.0",
+    "@eslint/js": "^9.16.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-hbs": "^1.0.3",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.2.4",
     "eslint-plugin-promise": "^6.0.0",
+    "globals": "^15.13.0",
     "jasmine": "^5.5.0",
     "nodemon": "^2.0.15"
   }
