@@ -14,135 +14,154 @@ describe('PendingPlanet Model', () => {
   
     beforeEach(() => {
         dbPrepareStub = spyOn(db, 'prepare').and.callFake((query) => {
-          if (query.includes('SELECT * FROM pending_planets WHERE name = ?')) {
-            return { 
-              get: () => null,
-              run: () => ({ changes: 1 })
-            };
-          }
-          if (query.includes('SELECT * FROM planets WHERE name = ?')) {
-            return { 
-              get: () => null
-            };
-          }
-          if (query.includes('INSERT INTO pending_planets')) {
+            // Default mock behavior for different query types
+            if (query.includes('SELECT * FROM pending_planets WHERE name = ?')) {
+                return { 
+                    get: () => null,
+                    run: () => ({ changes: 1 })
+                };
+            }
+            if (query.includes('SELECT * FROM planets WHERE name = ?')) {
+                return { 
+                    get: () => null
+                };
+            }
+            if (query.includes('INSERT INTO pending_planets')) {
+                return {
+                    run: () => ({ changes: 1 })
+                };
+            }
             return {
-              run: () => ({ changes: 1 })
+                all: () => [{ id: 1, name: 'Earth' }],
+                get: () => ({ id: 1, name: 'Earth' }),
+                run: () => ({ changes: 1 })
             };
-          }
-          return {
-            all: () => [{ id: 1, name: 'Earth' }],
-            get: () => ({ id: 1, name: 'Earth' }),
-            run: () => ({ changes: 1 })
-          };
         });
     });
 
-
-  it('should list all pending planets', () => {
-    const planets = PendingPlanet.list();
-    expect(planets).toEqual([{ id: 1, name: 'Earth' }]);
-  });
-
-  it('should find a pending planet by id', () => {
-    const planet = PendingPlanet.findById(1);
-    expect(planet).toEqual({ id: 1, name: 'Earth' });
-  });
-
-  it('should delete a pending planet by id', () => {
-    const result = PendingPlanet.deleteById(1);
-    expect(result).toBe(true);
-  });
-
-  it('should add a new pending planet', () => {
-    const result = PendingPlanet.add({ name: 'Mars', size_km: 6779, atmosphere: 'CO2', type: 'Terrestrial', distance_from_sun_km: 227943824 });
-    expect(result).toBe(true);
-  });
-
-  it('should not add a duplicate pending planet', () => {
-    dbPrepareStub.and.callFake((query) => {
-      if (query.includes('SELECT * FROM pending_planets WHERE name = ?')) {
-        return {
-          get: () => ({ id: 1, name: 'Earth' }),  // Simulate existing planet
-          run: () => ({ changes: 0 })
-        };
-      }
-      if (query.includes('SELECT * FROM planets WHERE name = ?')) {
-        return {
-          get: () => null
-        };
-      }
-      return {
-        run: () => ({ changes: 0 })
-      };
-    });
-  
-    const result = PendingPlanet.add({ 
-      name: 'Earth', 
-      size_km: 12742, 
-      atmosphere: 'N2/O2', 
-      type: 'Terrestrial', 
-      distance_from_sun_km: 149598262 
-    });
-    expect(result).toBe(false);
-  });
-
-  it('should find a pending planet by name', () => {
-    dbPrepareStub.and.callFake((query) => {
-      if (query.includes('SELECT * FROM pending_planets WHERE name = ?')) {
-        return { get: () => ({ id: 1, name: 'Earth' }) }; // Existing pending planet
-      }
-      return {
-        get: () => null
-      };
-    });
-    const planet = PendingPlanet.findByName('Earth');
-    expect(planet).toEqual({ id: 1, name: 'Earth' });
-  });
-
-  it('should remove a pending planet by name', () => {
-    const result = PendingPlanet.remove('Earth');
-    expect(result).toBe(true);
-  });
-
-  it('should not add a pending planet when planet already exists', () => {
-    dbPrepareStub.and.callFake((query) => {
-      if (query.includes('SELECT * FROM planets WHERE name = ?')) {
-        return {
-          get: () => ({ id: 1, name: 'Earth' }), // Existing planet in planets table
-        };
-      }
-      return {
-        get: () => null,
-        run: () => ({ changes: 0 })
-      };
+    // Reset spies before each test
+    beforeEach(() => {
+        jasmine.getEnv().allowRespy(true);
     });
 
-    const result = PendingPlanet.add({ 
-      name: 'Earth', 
-      size_km: 12742, 
-      atmosphere: 'N2/O2', 
-      type: 'Terrestrial', 
-      distance_from_sun_km: 149598262 
+    it('should list all pending planets', () => {
+        const planets = PendingPlanet.list();
+        expect(planets).toEqual([{ id: 1, name: 'Earth' }]);
     });
-    expect(result).toBe(false);
-  });
 
-   it('should handle failed database operations', () => {
-        // Override the default stub behavior specifically for this test
+    it('should find a pending planet by id', () => {
+        const planet = PendingPlanet.findById(1);
+        expect(planet).toEqual({ id: 1, name: 'Earth' });
+    });
+
+    it('should delete a pending planet by id', () => {
+        const result = PendingPlanet.deleteById(1);
+        expect(result).toBe(true);
+    });
+
+    it('should add a new pending planet', () => {
+        // Setup: Ensure the planet doesn't exist
         dbPrepareStub.and.callFake((query) => {
-            // For INSERT operations, simulate failure
+            if (query.includes('SELECT * FROM pending_planets WHERE name = ?')) {
+                return { get: () => null };
+            }
+            if (query.includes('SELECT * FROM planets WHERE name = ?')) {
+                return { get: () => null };
+            }
             if (query.includes('INSERT INTO pending_planets')) {
+                return { run: () => ({ changes: 1 }) };
+            }
+            return {
+                get: () => null,
+                run: () => ({ changes: 1 })
+            };
+        });
+
+        const result = PendingPlanet.add({ 
+            name: 'Mars', 
+            size_km: 6779, 
+            atmosphere: 'CO2', 
+            type: 'Terrestrial', 
+            distance_from_sun_km: 227943824 
+        });
+        expect(result).toBe(true);
+    });
+
+    it('should not add a duplicate pending planet', () => {
+        // Setup: Simulate existing planet in both pending and published lists
+        dbPrepareStub.and.callFake((query) => {
+            if (query.includes('SELECT * FROM pending_planets WHERE name = ?')) {
+                return { get: () => ({ id: 1, name: 'Earth' }) };  // Existing pending planet
+            }
+            if (query.includes('SELECT * FROM planets WHERE name = ?')) {
+                return { get: () => ({ id: 1, name: 'Earth' }) };  // Existing published planet
+            }
+            return {
+                get: () => null,
+                run: () => ({ changes: 0 })
+            };
+        });
+    
+        const result = PendingPlanet.add({ 
+            name: 'Earth', 
+            size_km: 12742, 
+            atmosphere: 'N2/O2', 
+            type: 'Terrestrial', 
+            distance_from_sun_km: 149598262 
+        });
+        expect(result).toBe(false);
+    });
+
+    it('should find a pending planet by name', () => {
+        dbPrepareStub.and.callFake((query) => {
+            if (query.includes('SELECT * FROM pending_planets WHERE name = ?')) {
+                return { get: () => ({ id: 1, name: 'Earth' }) }; // Existing pending planet
+            }
+            return {
+                get: () => null
+            };
+        });
+        const planet = PendingPlanet.findByName('Earth');
+        expect(planet).toEqual({ id: 1, name: 'Earth' });
+    });
+
+    it('should remove a pending planet by name', () => {
+        const result = PendingPlanet.remove('Earth');
+        expect(result).toBe(true);
+    });
+
+    it('should not add a pending planet when planet already exists', () => {
+        dbPrepareStub.and.callFake((query) => {
+            if (query.includes('SELECT * FROM planets WHERE name = ?')) {
                 return {
-                    run: () => ({ changes: 0 })
+                    get: () => ({ id: 1, name: 'Earth' }), // Existing planet in planets table
                 };
             }
-            // For SELECT operations checking existence
+            return {
+                get: () => null,
+                run: () => ({ changes: 0 })
+            };
+        });
+
+        const result = PendingPlanet.add({ 
+            name: 'Earth', 
+            size_km: 12742, 
+            atmosphere: 'N2/O2', 
+            type: 'Terrestrial', 
+            distance_from_sun_km: 149598262 
+        });
+        expect(result).toBe(false);
+    });
+
+    it('should handle failed database operations', () => {
+        // Setup: Simulate database operation failures
+        dbPrepareStub.and.callFake((query) => {
             if (query.includes('SELECT * FROM pending_planets WHERE name = ?') || 
                 query.includes('SELECT * FROM planets WHERE name = ?')) {
-                return {
-                    get: () => null
-                };
+                return { get: () => null };
+            }
+            if (query.includes('INSERT INTO pending_planets')) {
+                return { run: () => ({ changes: 0 }) };
             }
             return {
                 get: () => null,
@@ -160,6 +179,8 @@ describe('PendingPlanet Model', () => {
         expect(result).toBe(false);  // Ensure the result is false
     });
 });
+
+// Rest of the file remains the same...
 
 // Tests for Routes
 describe('Planet Pending Routes', () => {
