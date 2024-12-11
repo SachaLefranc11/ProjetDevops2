@@ -1,24 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const Planet = require('../models/Planet');
 const PendingPlanet = require('../models/PendingPlanet');
 
-// Configuration Multer pour le téléversement des images
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/images');
-  },
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + '-' + file.originalname;
-    cb(null, uniqueName);
-  },
-});
-const upload = multer({ storage });
-
 router.get('/', (req, res) => {
-  const planets = Planet.list(); // Planètes approuvées
-  const pendingPlanets = PendingPlanet.list(); // Planètes en attente
+  const planets = Planet.list(); // Approved planets
+  const pendingPlanets = PendingPlanet.list(); // Pending planets
 
   res.render('planets/index', { 
     planets, 
@@ -28,11 +15,16 @@ router.get('/', (req, res) => {
   });
 });
 
-router.post('/add', upload.single('planetImage'), (req, res) => {
+router.post('/add', (req, res) => {
   const { name, size_km, atmosphere, type, distance_from_sun_km } = req.body;
-  const image = req.file ? `images/${req.file.filename}` : null;
 
-  const result = Planet.add({ name, size_km: parseFloat(size_km), atmosphere, type, distance_from_sun_km: parseFloat(distance_from_sun_km), image });
+  const result = Planet.add({ 
+    name, 
+    size_km: parseFloat(size_km), 
+    atmosphere, 
+    type, 
+    distance_from_sun_km: parseFloat(distance_from_sun_km) 
+  });
   if (!result) {
     res.redirect('/planets?errors=Planet already exists or invalid data');
   } else {
@@ -40,17 +32,15 @@ router.post('/add', upload.single('planetImage'), (req, res) => {
   }
 });
 
-router.post('/submit', upload.single('planetImage'), (req, res) => {
+router.post('/submit', (req, res) => {
   const { name, size_km, atmosphere, type, distance_from_sun_km } = req.body;
-  const image = req.file ? `images/${req.file.filename}` : null;
 
   const result = PendingPlanet.add({ 
     name, 
     size_km: parseFloat(size_km), 
     atmosphere, 
     type, 
-    distance_from_sun_km: parseFloat(distance_from_sun_km), 
-    image 
+    distance_from_sun_km: parseFloat(distance_from_sun_km)
   });
   
   if (!result) {
