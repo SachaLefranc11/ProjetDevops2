@@ -1,4 +1,3 @@
-// models/PendingPlanet.js
 const db = require('../models/db_conf');
 
 class PendingPlanet {
@@ -18,29 +17,33 @@ class PendingPlanet {
 
   static add(planetData) {
     try {
+      // Validate planetData.name
+      if (!planetData.name) {
+        throw new Error('Planet name is required');
+      }
+  
       // First check if planet exists in either pending or published tables
       const existingPending = db.prepare('SELECT * FROM pending_planets WHERE name = ?').get(planetData.name);
       const existingPublished = db.prepare('SELECT * FROM planets WHERE name = ?').get(planetData.name);
-
+  
       if (existingPending || existingPublished) {
         return false;
       }
-
+  
       // Attempt to insert the new pending planet
       const stmt = db.prepare(`
         INSERT INTO pending_planets (name, size_km, atmosphere, type, distance_from_sun_km) 
         VALUES (?, ?, ?, ?, ?)
       `);
-
+  
       const result = stmt.run(
         planetData.name,
         planetData.size_km,
-        planetData.atmosphere, 
+        planetData.atmosphere,
         planetData.type,
         planetData.distance_from_sun_km
       );
-
-      // Return false if insert failed (changes === 0)
+  
       return result.changes > 0;
     } catch (error) {
       console.error('Error adding pending planet:', error);

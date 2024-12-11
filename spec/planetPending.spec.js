@@ -164,7 +164,6 @@ describe('PendingPlanet Model', () => {
 // Tests for Routes
 describe('Planet Pending Routes', () => {
     let pendingPlanetAddSpy;
-    let planetListSpy;
   
     beforeEach(() => {
       // Reset spies before each test
@@ -174,7 +173,7 @@ describe('Planet Pending Routes', () => {
         }
         return true;
       });
-      planetListSpy = spyOn(Planet, 'list').and.returnValue([{ id: 1, name: 'Earth' }]);
+      spyOn(Planet, 'list').and.returnValue([{ id: 1, name: 'Earth' }]);
     });
 
   it('should render planets index', () => {
