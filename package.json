@@ -2,13 +2,11 @@
   "name": "exojavascriptplanet",
   "version": "0.0.0",
   "private": true,
- "scripts": {
-  "start": "nodemon app.js",
-  "lint": "eslint .",
-  "test": "npm run lint && npm run tests",
-  "tests": "npx jasmine"
-},
-
+  "scripts": {
+    "start": "nodemon app.js",           
+    "lint": "eslint .",                 
+    "jasmine-tests": "jasmine"         
+  },
   "dependencies": {
     "bcrypt": "^5.1.0",
     "better-sqlite3": "^9.4.3",
