@@ -26,7 +26,7 @@ module.exports.add = (data) => {
   // Ajouter la planète en attente
   const stmt = db.prepare(`
     INSERT INTO pending_planets (name, size_km, atmosphere, type, distance_from_sun_km)
-    VALUES (?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?)
   `);
   stmt.run(data.name, data.size_km, data.atmosphere, data.type, data.distance_from_sun_km);
   return true;

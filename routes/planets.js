@@ -4,8 +4,10 @@ const Planet = require('../models/Planet');
 const PendingPlanet = require('../models/PendingPlanet');
 
 router.get('/', (req, res) => {
-  const planets = Planet.list(); // Approved planets
-  const pendingPlanets = PendingPlanet.list(); // Pending planets
+  const planets = Planet.list();
+  const pendingPlanets = PendingPlanet.list();
+
+  console.log('Pending Planets:', pendingPlanets); // Vérifiez ici si les IDs sont présents
 
   res.render('planets/index', { 
     planets, 
@@ -14,6 +16,7 @@ router.get('/', (req, res) => {
     message: req.query.message 
   });
 });
+
 
 router.post('/add', (req, res) => {
   const { name, size_km, atmosphere, type, distance_from_sun_km } = req.body;
@@ -35,41 +38,48 @@ router.post('/add', (req, res) => {
 router.post('/submit', (req, res) => {
   const { name, size_km, atmosphere, type, distance_from_sun_km } = req.body;
 
-  const result = PendingPlanet.add({ 
-    name, 
-    size_km: parseFloat(size_km), 
-    atmosphere, 
-    type, 
-    distance_from_sun_km: parseFloat(distance_from_sun_km)
+  if (!name || !size_km || !atmosphere || !type || !distance_from_sun_km) {
+    return res.status(400).send('All fields are required');
+  }
+
+  const result = PendingPlanet.add({
+    name,
+    size_km: parseFloat(size_km),
+    atmosphere,
+    type,
+    distance_from_sun_km: parseFloat(distance_from_sun_km),
   });
-  
+
   if (!result) {
     res.redirect('/planets?errors=Planet already exists in pending or published list');
   } else {
-    res.redirect('/planets?message=Planet submitted for review');
+    res.redirect('/planets?message=Planet submitted successfully');
   }
 });
 
 router.post('/approve/:id', (req, res) => {
+  console.log('Admin session:', req.session.admin);
   if (req.session.admin) {
-      const planetId = req.params.id;
+    const planetId = req.params.id;
 
-      const pendingPlanet = PendingPlanet.findById(planetId);
-      if (!pendingPlanet) {
-          return res.redirect('/planets?errors=Pending planet not found');
-      }
+    const pendingPlanet = PendingPlanet.findById(planetId);
+    if (!pendingPlanet) {
+      return res.redirect('/planets?errors=Pending planet not found');
+    }
 
-      const result = Planet.add(pendingPlanet);
-      if (result) {
-          PendingPlanet.deleteById(planetId);
-          res.redirect('/planets?message=Planet approved');
-      } else {
-          res.redirect('/planets?errors=Planet could not be approved');
-      }
+    const result = Planet.add(pendingPlanet);
+    if (result) {
+      PendingPlanet.deleteById(planetId);
+      res.redirect('/planets?message=Planet approved');
+    } else {
+      res.redirect('/planets?errors=Planet could not be approved');
+    }
   } else {
-      res.redirect('/members');
+    res.redirect('/members');
   }
 });
+
+
 
 router.post('/reject/:id', (req, res) => {
   if (req.session.admin) {

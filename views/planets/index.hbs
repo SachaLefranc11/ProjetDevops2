@@ -1,19 +1,19 @@
 <h1>Planets</h1>
-<form action="/planets/submit" method="post" enctype="multipart/form-data">
-  <label>Name:</label>
-  <input type="text" name="name" required>
-  <label>Size (km):</label>
-  <input type="number" name="size_km" required>
-  <label>Atmosphere:</label>
-  <input type="text" name="atmosphere">
-  <label>Type:</label>
-  <select name="type">
-    <option value="terrestrial">Terrestrial</option>
-    <option value="gas">Gas</option>
-  </select>
-  <label>Distance from Sun (km):</label>
-  <button type="submit">Submit Planet</button>
+<form action="/planets/submit" method="POST">
+  <label >Name :</label>
+  <input type="text" name="name" placeholder="Planet Name" required />
+  <label >Size (km) :</label>
+  <input type="number" name="size_km" placeholder="Size in km" required />
+  <label >Atmosphere :</label>
+  <input type="text" name="atmosphere" placeholder="Atmosphere" required />
+  <label >Type :</label>
+  <input type="text" name="type" placeholder="Type" required />
+  <label >distance_from_sun_km :</label>
+  <input type="number" name="distance_from_sun_km" placeholder="Distance from Sun (km)" required />
+  <button type="submit">Submit</button>
 </form>
+
+
 
 {{#if errors}}
 <p style="color: red;">{{errors}}</p>

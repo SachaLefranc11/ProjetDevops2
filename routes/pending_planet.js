@@ -12,12 +12,16 @@ router.get('/planets', (req, res) => {
 router.post('/submit', (req, res) => {
   const { name, size_km, atmosphere, type, distance_from_sun_km } = req.body;
 
+  if (!name || !size_km || !atmosphere || !type || !distance_from_sun_km) {
+    return res.status(400).send('All fields are required');
+  }
+
   const result = PendingPlanet.add({
     name,
     size_km: parseFloat(size_km),
     atmosphere,
     type,
-    distance_from_sun_km: parseFloat(distance_from_sun_km)
+    distance_from_sun_km: parseFloat(distance_from_sun_km),
   });
 
   if (!result) {
@@ -26,6 +30,7 @@ router.post('/submit', (req, res) => {
     res.redirect('/planets?message=Planet submitted successfully');
   }
 });
+
 
 // Catch-all route for 404 errors
 router.use((req, res, next) => {
