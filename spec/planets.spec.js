@@ -252,3 +252,162 @@ describe('Planet model', () => {
     });
   });
 });
+
+describe('Validation des erreurs', () => {
+    beforeEach(() => {
+        spyOn(Planet, 'add').and.callThrough();
+        spyOn(PendingPlanet, 'add').and.callThrough();
+    });
+
+    describe('Planet.add', () => {
+        it('should not add a planet if size_km is not a number', () => {
+            const invalidPlanet = {
+                name: 'InvalidPlanet',
+                size_km: 'not-a-number', // Invalid type
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 1000000
+            };
+
+            const result = Planet.add(invalidPlanet);
+
+            expect(result).toBeFalse();
+            expect(Planet.add).toHaveBeenCalledWith(invalidPlanet);
+        });
+
+        it('should not add a planet if distance_from_sun_km is not a number', () => {
+            const invalidPlanet = {
+                name: 'InvalidPlanet',
+                size_km: 12000,
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 'not-a-number' // Invalid type
+            };
+
+            const result = Planet.add(invalidPlanet);
+
+            expect(result).toBeFalse();
+            expect(Planet.add).toHaveBeenCalledWith(invalidPlanet);
+        });
+
+        it('should not add a planet if size_km is negative', () => {
+            const invalidPlanet = {
+                name: 'InvalidPlanet',
+                size_km: -5000, // Negative value
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 1000000
+            };
+
+            const result = Planet.add(invalidPlanet);
+
+            expect(result).toBeFalse();
+            expect(Planet.add).toHaveBeenCalledWith(invalidPlanet);
+        });
+
+        it('should not add a planet if distance_from_sun_km is negative', () => {
+            const invalidPlanet = {
+                name: 'InvalidPlanet',
+                size_km: 12000,
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: -1000000 // Negative value
+            };
+
+            const result = Planet.add(invalidPlanet);
+
+            expect(result).toBeFalse();
+            expect(Planet.add).toHaveBeenCalledWith(invalidPlanet);
+        });
+
+        it('should not add a planet if required fields are missing', () => {
+            const invalidPlanet = {
+                size_km: 12000, // Missing name
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 1000000
+            };
+
+            const result = Planet.add(invalidPlanet);
+
+            expect(result).toBeFalse();
+            expect(Planet.add).toHaveBeenCalledWith(invalidPlanet);
+        });
+    });
+
+    describe('PendingPlanet.add', () => {
+        it('should not add a pending planet if size_km is not a number', () => {
+            const invalidPendingPlanet = {
+                name: 'PendingInvalidPlanet',
+                size_km: 'not-a-number', // Invalid type
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 1000000
+            };
+
+            const result = PendingPlanet.add(invalidPendingPlanet);
+
+            expect(result).toBeFalse();
+            expect(PendingPlanet.add).toHaveBeenCalledWith(invalidPendingPlanet);
+        });
+
+        it('should not add a pending planet if distance_from_sun_km is not a number', () => {
+            const invalidPendingPlanet = {
+                name: 'PendingInvalidPlanet',
+                size_km: 12000,
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 'not-a-number' // Invalid type
+            };
+
+            const result = PendingPlanet.add(invalidPendingPlanet);
+
+            expect(result).toBeFalse();
+            expect(PendingPlanet.add).toHaveBeenCalledWith(invalidPendingPlanet);
+        });
+
+        it('should not add a pending planet if size_km is negative', () => {
+            const invalidPendingPlanet = {
+                name: 'PendingInvalidPlanet',
+                size_km: -5000, // Negative value
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 1000000
+            };
+
+            const result = PendingPlanet.add(invalidPendingPlanet);
+
+            expect(result).toBeFalse();
+            expect(PendingPlanet.add).toHaveBeenCalledWith(invalidPendingPlanet);
+        });
+
+        it('should not add a pending planet if distance_from_sun_km is negative', () => {
+            const invalidPendingPlanet = {
+                name: 'PendingInvalidPlanet',
+                size_km: 12000,
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: -1000000 // Negative value
+            };
+
+            const result = PendingPlanet.add(invalidPendingPlanet);
+
+            expect(result).toBeFalse();
+            expect(PendingPlanet.add).toHaveBeenCalledWith(invalidPendingPlanet);
+        });
+
+        it('should not add a pending planet if required fields are missing', () => {
+            const invalidPendingPlanet = {
+                size_km: 12000, // Missing name
+                atmosphere: 'Nitrogen',
+                type: 'Terrestrial',
+                distance_from_sun_km: 1000000
+            };
+
+            const result = PendingPlanet.add(invalidPendingPlanet);
+
+            expect(result).toBeFalse();
+            expect(PendingPlanet.add).toHaveBeenCalledWith(invalidPendingPlanet);
+        });
+    });
+});

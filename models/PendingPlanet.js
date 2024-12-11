@@ -16,18 +16,29 @@ module.exports.deleteById = (id) => {
 };
 
 module.exports.add = (data) => {
-  // Vérifier si la planète existe déjà dans les planètes ou en attente
-  const existingPendingPlanet = db.prepare("SELECT * FROM pending_planets WHERE name = ?").get(data.name);
-  const existingPlanet = db.prepare("SELECT * FROM planets WHERE name = ?").get(data.name);
-  if (existingPendingPlanet || existingPlanet) {
+  if (!data.name || typeof data.name !== 'string' || data.name.trim() === '') {
     return false;
   }
 
-  // Ajouter la planète en attente
-  const stmt = db.prepare(`
-    INSERT INTO pending_planets (name, size_km, atmosphere, type, distance_from_sun_km)
-    VALUES (?, ?, ?, ?, ?)
-  `);
+  if (
+    typeof data.size_km !== 'number' ||
+    data.size_km <= 0 ||
+    typeof data.atmosphere !== 'string' ||
+    data.atmosphere.trim() === '' ||
+    typeof data.type !== 'string' ||
+    data.type.trim() === '' ||
+    typeof data.distance_from_sun_km !== 'number' ||
+    data.distance_from_sun_km <= 0
+  ) {
+    return false;
+  }
+
+  const existingPendingPlanet = db.prepare("SELECT * FROM pending_planets WHERE name = ?").get(data.name);
+  if (existingPendingPlanet) {
+    return false;
+  }
+
+  const stmt = db.prepare("INSERT INTO pending_planets (name, size_km, atmosphere, type, distance_from_sun_km) VALUES (?, ?, ?, ?, ?)");
   stmt.run(data.name, data.size_km, data.atmosphere, data.type, data.distance_from_sun_km);
   return true;
 };
