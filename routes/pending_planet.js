@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const PendingPlanet = require('./models/PendingPlanet'); // Adjust the path as needed
-const Planet = require('./models/Planet'); // Adjust the path as needed
+const PendingPlanet = require('../models/PendingPlanet'); // Adjust the path as needed
+const Planet = require('../models/Planet'); // Adjust the path as needed
 
 // Route to render planets index
 router.get('/planets', (req, res) => {
@@ -30,7 +30,6 @@ router.post('/submit', (req, res) => {
     res.redirect('/planets?message=Planet submitted successfully');
   }
 });
-
 
 // Catch-all route for 404 errors
 router.use((req, res, next) => {
